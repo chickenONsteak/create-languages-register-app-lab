@@ -4,9 +4,10 @@ const Input = (props) => {
   return (
     <div>
       <input
-        id={props.id}
-        placeholder="Enter here"
-        onChange={(event) => props.handleInput(event)}
+        // id={props.id}
+        placeholder={props.placeholder}
+        ref={props.reference}
+        // onChange={(event) => props.handleInput(event)}
       />
     </div>
   );

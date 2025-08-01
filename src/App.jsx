@@ -5,6 +5,7 @@ import Languages from "./components/Languages";
 import Home from "./components/Home";
 import Party from "./components/Party";
 import { Route, Routes } from "react-router-dom";
+import PartyUpdate from "./components/PartyUpdate";
 
 const queryClient = new QueryClient();
 
