@@ -3,12 +3,7 @@ import React from "react";
 const Input = (props) => {
   return (
     <div>
-      <input
-        // id={props.id}
-        placeholder={props.placeholder}
-        ref={props.reference}
-        // onChange={(event) => props.handleInput(event)}
-      />
+      <input placeholder={props.placeholder} ref={props.reference} />
     </div>
   );
 };

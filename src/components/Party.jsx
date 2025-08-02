@@ -9,22 +9,20 @@ const Party = () => {
   const partyNameRef = useRef();
   const partyAgeRef = useRef();
   const partyCountryRef = useRef();
-  const partyLanguageRef = useRef();
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   // FETCH USERS DATA
   const getData = async () => {
     const res = await fetch(import.meta.env.VITE_SERVER + "/lab/users");
-
     if (!res.ok) {
       throw new Error("error retrieving users");
     }
-
     return await res.json();
   };
 
   const query = useQuery({ queryKey: ["party"], queryFn: getData });
 
-  // ADD PARTY MEMBER INFO
+  // ADD PARTY MEMBER
   const addParty = async () => {
     const res = await fetch(import.meta.env.VITE_SERVER + "/lab/users", {
       method: "PUT",
@@ -35,7 +33,6 @@ const Party = () => {
         country: partyCountryRef.current.value,
       }),
     });
-
     if (!res.ok) {
       throw new Error("error adding party member");
     }
@@ -58,7 +55,6 @@ const Party = () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ user_id: id }),
     });
-
     if (!res.ok) {
       throw new Error("error deleting party member");
     }
@@ -68,47 +64,6 @@ const Party = () => {
     mutationFn: (id) => deleteParty(id),
     onSuccess: () => queryClient.invalidateQueries(["party"]),
   });
-
-  // // UPDATE PARTY MEMBER INFO
-  // const updatePartyInfo = async (id) => {
-  //   const res = await fetch(import.meta.env.VITE_SERVER + "/lab/users", {
-  //     method: "PATCH",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({
-  //       user_id: id,
-  //       name: partyNameRef.current.value,
-  //       age: partyAgeRef.current.value,
-  //       country: partyCountryRef.current.value,
-  //     }),
-  //   });
-  //   if (!res.ok) {
-  //     throw new Error("error updating party member");
-  //   }
-  // };
-
-  // // UPDATE PARTY MEMBER MOVESET
-  // const updatePartyMoveset = async (id) => {
-  //   const res = await fetch(
-  //     import.meta.env.VITE_SERVER + "/lab/users/languages",
-  //     {
-  //       method: "PUT",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         user_id: id,
-  //         language: partyLanguageRef.current.value,
-  //       }),
-  //     }
-  //   );
-
-  //   if (!res.ok) {
-  //     throw new Error("error adding moveset");
-  //   }
-  // };
-
-  // const addParty = (id) => {
-  //   addPartyInfo();
-  //   addPartyMoveset(id)
-  // };
 
   return (
     <div>
@@ -123,31 +78,36 @@ const Party = () => {
       <br />
 
       <div className="row">
-        <div className="col-md-1">Name</div>
-        <div className="col-md-1">Age</div>
+        <div className="col-md-2">Name</div>
+        <div className="col-md-2">Age</div>
         <div className="col-md-2">Country</div>
-        <div className="col-md-3">Moveset</div>
         <div className="col-md-2"></div>
         <div className="col-md-2"></div>
       </div>
       {query.isSuccess &&
         query.data.map((member) => {
-          member.moveset = "";
           return (
             <div className="row" key={member.id}>
-              <div className="col-md-1">{member.name}</div>
-              <div className="col-md-1">{member.age}</div>
+              <div className="col-md-2">{member.name}</div>
+              <div className="col-md-2">{member.age}</div>
               <div className="col-md-2">{member.country}</div>
-              <div className="col-md-3">{member.moveset}</div>
-              <PartyUpdate
+              <button
                 className="col-md-2"
-                id={member.id}
-                name={member.name}
-                age={member.age}
-                country={member.country}
-                moveset={member.moveset}
-              />
-
+                onClick={() => setShowUpdateModal(true)}
+              >
+                Update
+              </button>
+              {showUpdateModal && (
+                <PartyUpdate
+                  className="col-md-2"
+                  id={member.id}
+                  name={member.name}
+                  age={member.age}
+                  country={member.country}
+                  setShowUpdateModal={setShowUpdateModal}
+                  query={query}
+                />
+              )}
               <Button
                 mutate={() => mutationDeleteParty.mutate(member.id)}
                 className="col-md-2"

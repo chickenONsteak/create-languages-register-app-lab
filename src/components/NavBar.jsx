@@ -11,6 +11,9 @@ const NavBar = () => {
         <NavLink to="manage-party">Manage party</NavLink>
       </li>
       <li>
+        <NavLink to="manage-party-movesets">Manage party movesets</NavLink>
+      </li>
+      <li>
         <NavLink to="manage-languages">Manage languages</NavLink>
       </li>
     </nav>

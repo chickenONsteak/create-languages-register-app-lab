@@ -1,10 +1,38 @@
-import React from "react";
+import React, { useRef, useState } from "react";
+import styles from "./Modal.module.css";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import ReactDOM from "react-dom";
 
-const PartyUpdate = (props) => {
+const OverLay = (props) => {
   const nameRef = useRef();
   const ageRef = useRef();
   const countryRef = useRef();
-  const languageRef = useRef();
+  const queryClient = useQueryClient();
+
+  // UPDATE PARTY MEMBER INFO
+  const updatePartyInfo = async (id) => {
+    const res = await fetch(import.meta.env.VITE_SERVER + "/lab/users", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: id,
+        name: nameRef.current.value,
+        age: ageRef.current.value,
+        country: countryRef.current.value,
+      }),
+    });
+    if (!res.ok) {
+      throw new Error("error updating party member");
+    }
+  };
+
+  const mutation = useMutation({
+    mutationFn: (id) => updatePartyInfo(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries([props.query]);
+      props.setShowUpdateModal(false);
+    },
+  });
 
   return (
     <div className={styles.backdrop}>
@@ -46,26 +74,17 @@ const PartyUpdate = (props) => {
         </div>
         <div className="row">
           <div className="col-md-3"></div>
-          <div className="col-md-3">Moveset: </div>
-          <input
-            type="text"
-            ref={languageRef}
+          <button
+            onClick={() => mutation.mutate(props.id)}
             className="col-md-3"
-            defaultValue={props.moveset}
-          />
-          <div className="col-md-3"></div>
-        </div>
-
-        <div className="row">
-          <div className="col-md-3"></div>
-          <button onClick={mutate} className="col-md-3">
-            update
+          >
+            Update
           </button>
           <button
             onClick={() => props.setShowUpdateModal(false)}
             className="col-md-3"
           >
-            cancel
+            Cancel
           </button>
           <div className="col-md-3"></div>
         </div>
@@ -74,17 +93,17 @@ const PartyUpdate = (props) => {
   );
 };
 
-const UpdateModal = (props) => {
+const PartyUpdate = (props) => {
   return (
     <>
       {ReactDOM.createPortal(
         <OverLay
           id={props.id}
-          title={props.title}
-          author={props.author}
-          yearPublished={props.yearPublished}
-          getData={props.getData}
+          name={props.name}
+          age={props.age}
+          country={props.country}
           setShowUpdateModal={props.setShowUpdateModal}
+          query={props.query}
         />,
         document.querySelector("#modal-root")
       )}
